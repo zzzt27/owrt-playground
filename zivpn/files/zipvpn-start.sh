@@ -30,8 +30,11 @@ WAN_IFACE="$(uci -q get zipvpn.main.wan_iface 2>/dev/null)"
 DOWN_MBPS="$(uci -q get zipvpn.main.down_mbps 2>/dev/null)"; DOWN_MBPS="${DOWN_MBPS:-50}"
 UP_MBPS="$(uci -q get zipvpn.main.up_mbps 2>/dev/null)"; UP_MBPS="${UP_MBPS:-10}"
 DISABLE_MTU="$(uci -q get zipvpn.main.disable_mtu_discovery 2>/dev/null)"; [ "$DISABLE_MTU" != "0" ] && DISABLE_MTU="true" || DISABLE_MTU="false"
-RECV_CONN="$(uci -q get zipvpn.main.recvwindowconn 2>/dev/null)"; RECV_CONN="${RECV_CONN:-65536}"
-RECV_WIN="$(uci -q get zipvpn.main.recvwindow 2>/dev/null)"; RECV_WIN="${RECV_WIN:-262144}"
+RECV_CONN="$(uci -q get zipvpn.main.recvwindowconn 2>/dev/null)"; RECV_CONN="${RECV_CONN:-1048576}"
+RECV_WIN="$(uci -q get zipvpn.main.recvwindow 2>/dev/null)"; RECV_WIN="${RECV_WIN:-4194304}"
+HOP_INTERVAL="$(uci -q get zipvpn.main.hop_interval 2>/dev/null)"
+FAST_OPEN="$(uci -q get zipvpn.main.fast_open 2>/dev/null)"
+LAZY_MODE="$(uci -q get zipvpn.main.lazy_mode 2>/dev/null)"
 
 
 # ── Validate ───────────────────────────────────────────────────────────────────
@@ -158,7 +161,11 @@ CFG="{\"server\":\"${SERVER_IP:-$Z_SERVER}:$Z_PORTS\""
 CFG="$CFG,\"obfs\":\"$Z_OBFS\""
 [ -n "$Z_PASSWORD"  ] && CFG="$CFG,\"auth\":\"$Z_PASSWORD\""
 CFG="$CFG,\"socks5\":{\"listen\":\"127.0.0.1:$EXPOSE_PORT\"}"
-CFG="$CFG,\"insecure\":true,\"recvwindowconn\":$RECV_CONN,\"recvwindow\":$RECV_WIN,\"disable_mtu_discovery\":$DISABLE_MTU,\"resolver\":\"$RESOLVER\",\"down_mbps\":$DOWN_MBPS,\"up_mbps\":$UP_MBPS}"
+CFG="$CFG,\"insecure\":true,\"recvwindowconn\":$RECV_CONN,\"recvwindow\":$RECV_WIN,\"disable_mtu_discovery\":$DISABLE_MTU,\"resolver\":\"$RESOLVER\",\"down_mbps\":$DOWN_MBPS,\"up_mbps\":$UP_MBPS"
+[ -n "$HOP_INTERVAL" ] && CFG="$CFG,\"hopInterval\":\"$HOP_INTERVAL\""
+[ "$FAST_OPEN" = "1" ]  && CFG="$CFG,\"fastOpen\":true"
+[ "$LAZY_MODE" = "1" ]  && CFG="$CFG,\"lazy\":true"
+CFG="$CFG}"
 
 # ── Launch zivpn ──────────────────────────────────────────────────────────────
 log "Launching zivpn..."

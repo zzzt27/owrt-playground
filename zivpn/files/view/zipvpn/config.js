@@ -145,6 +145,27 @@ return view.extend({
         o.datatype = 'uinteger';
         o.default  = '4194304';
 
+        o = s.option(form.Value, 'hop_interval', 'Port Hop Interval',
+            'How often to switch to a different port from your port range. ' +
+            'Helps avoid throttling on some ISPs. Set to 0 or leave empty to disable.');
+        o.placeholder = 'e.g. 30s, 1m';
+        o.default     = '';
+        o.optional    = true;
+
+        o = s.option(form.Flag, 'fast_open', 'QUIC Fast Open (0-RTT)',
+            'Send data before handshake completes. Reduces latency on reconnect, ' +
+            'but slightly less secure against replay attacks.');
+        o.enabled  = '1';
+        o.disabled = '0';
+        o.default  = o.disabled;
+
+        o = s.option(form.Flag, 'lazy_mode', 'Lazy Mode',
+            'Delay connecting to the server until the first client request. ' +
+            'Saves resources when ZiVPN is idle.');
+        o.enabled  = '1';
+        o.disabled = '0';
+        o.default  = o.disabled;
+
         return m.render();
     }
 });
