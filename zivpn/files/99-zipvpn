@@ -32,6 +32,9 @@ L3_DEV="$(ubus call network.interface."$WAN_IFACE" status 2>/dev/null | jsonfilt
 
 [ -z "$WAN_GW" ] || [ -z "$L3_DEV" ] && exit 0
 
+# Ensure the kernel device is UP (ModemManager quirk)
+ip link set "$L3_DEV" up 2>/dev/null
+
 # Replace the route with the new gateway
 ip route replace "$SERVER_IP" via "$WAN_GW" dev "$L3_DEV" 2>/dev/null
 logger -t ZIPVPN "Hotplug: Route updated $SERVER_IP via $WAN_GW dev $L3_DEV (interface $INTERFACE came up)"

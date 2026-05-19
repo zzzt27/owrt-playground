@@ -120,6 +120,13 @@ if [ -n "$WAN_IFACE" ] && [ -n "$SERVER_IP" ]; then
     else
         log "Setting route: $SERVER_IP via $WAN_IFACE ($L3_DEV)"
 
+        # Ensure the kernel device is UP (ModemManager sometimes doesn't do this)
+        if ! ip link show "$L3_DEV" 2>/dev/null | grep -q 'state UP\|state UNKNOWN'; then
+            log "Device $L3_DEV is DOWN at kernel level — bringing UP..."
+            ip link set "$L3_DEV" up 2>/dev/null
+            sleep 1
+        fi
+
         # Try to get gateway and add route (best effort — don't block if WAN is down)
         WAN_GW="$(ubus call network.interface."$WAN_IFACE" status 2>/dev/null | jsonfilter -e '@.route[@.target="0.0.0.0"].nexthop' 2>/dev/null)"
         [ -z "$WAN_GW" ] && WAN_GW="$(ip route show dev "$L3_DEV" 2>/dev/null | awk '/^default/{print $3; exit}')"
