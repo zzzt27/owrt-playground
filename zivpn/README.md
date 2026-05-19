@@ -28,6 +28,10 @@ cd owrt-playground-master/zivpn
 
 # Run the installer
 sh install.sh
+
+# Cleanup
+cd /tmp
+rm -rf owrt-playground-master owrt-playground.tar.gz
 ```
 
 Or if you have `git` installed on your OpenWrt:
