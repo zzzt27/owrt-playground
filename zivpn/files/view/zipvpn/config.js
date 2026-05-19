@@ -97,6 +97,14 @@ return view.extend({
         s = m.section(form.NamedSection, 'main', 'global', 'Options');
         s.addremove = false;
 
+        o = s.option(form.Value, 'expose_port', 'SOCKS5 Port',
+            'Local SOCKS5 proxy port that Mihomo/Clash connects to. ' +
+            'Change if port 2080 is already in use.');
+        o.datatype    = 'port';
+        o.placeholder = '2080';
+        o.default     = '2080';
+
+
         o = s.option(form.Flag, 'enabled', 'Start on boot',
             'Automatically start ZiVPN when the router boots');
         o.enabled  = '1';
