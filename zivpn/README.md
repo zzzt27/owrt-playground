@@ -14,34 +14,13 @@ Provides a SOCKS5 proxy that can be used as an upstream for **Mihomo / Clash**.
 
 ## Quick Install
 
-SSH into your OpenWrt router and run the commands below.
-*(Note: GitHub automatically generates a `.tar.gz` of the source code, so we can just download it directly using `wget`)*
+SSH into your OpenWrt router and run this single command:
 
 ```bash
-# Download the repository source code
-cd /tmp
-wget https://github.com/zzzt27/owrt-playground/archive/refs/heads/master.tar.gz -O owrt-playground.tar.gz
-
-# Extract it
-tar xzf owrt-playground.tar.gz
-cd owrt-playground-master/zivpn
-
-# Run the installer
-sh install.sh
-
-# Cleanup
-cd /tmp
-rm -rf owrt-playground-master owrt-playground.tar.gz
+wget -qO- https://raw.githubusercontent.com/zzzt27/owrt-playground/master/zivpn/installer.sh | sh
 ```
 
-Or if you have `git` installed on your OpenWrt:
-
-```bash
-cd /tmp
-git clone https://github.com/zzzt27/owrt-playground.git
-cd owrt-playground/zivpn
-sh install.sh
-```
+That's it. No extraction, no cleanup needed.
 
 ## After Installation
 
