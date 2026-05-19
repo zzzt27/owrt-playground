@@ -1,9 +1,14 @@
 #!/bin/sh
 # /etc/hotplug.d/iface/99-zipvpn
-# Auto re-apply ZiVPN server route when the selected WAN interface comes up or changes IP
-# This solves: ISP changing IP (e.g. XL every 2h), WAN reconnect, modem restart, etc.
+# Auto re-apply ZiVPN server route when the selected WAN interface:
+#   - comes up (ifup)        → modem restart, cable reconnect
+#   - changes IP (ifupdate)  → DHCP renew, ISP IP rotation (e.g. XL every 2h)
 
-[ "$ACTION" = "ifup" ] || exit 0
+# Only act on ifup or ifupdate
+case "$ACTION" in
+    ifup|ifupdate) ;;
+    *) exit 0 ;;
+esac
 
 # Only act if ZiVPN is running
 pgrep -f '/etc/zipvpn/core/zivpn' >/dev/null 2>&1 || exit 0
@@ -32,12 +37,16 @@ L3_DEV="$(ubus call network.interface."$WAN_IFACE" status 2>/dev/null | jsonfilt
 
 [ -z "$WAN_GW" ] || [ -z "$L3_DEV" ] && exit 0
 
+# Check if route already correct — avoid spamming logs on every ifupdate
+CURRENT="$(ip route get "$SERVER_IP" 2>/dev/null | awk '/via/{print $3"|"$5; exit}')"
+[ "$CURRENT" = "$WAN_GW|$L3_DEV" ] && exit 0
+
 # Ensure the kernel device is UP (ModemManager quirk)
 ip link set "$L3_DEV" up 2>/dev/null
 
 # Replace the route with the new gateway
 ip route replace "$SERVER_IP" via "$WAN_GW" dev "$L3_DEV" 2>/dev/null
-logger -t ZIPVPN "Hotplug: Route updated $SERVER_IP via $WAN_GW dev $L3_DEV (interface $INTERFACE came up)"
+logger -t ZIPVPN "Hotplug($ACTION): Route updated $SERVER_IP via $WAN_GW dev $L3_DEV"
 
 # Also refresh the bypass ip rule
 ip rule del to "$SERVER_IP" lookup main 2>/dev/null
