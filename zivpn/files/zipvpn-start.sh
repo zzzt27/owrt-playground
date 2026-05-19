@@ -202,9 +202,15 @@ for i in $(seq 1 15); do
         log "    server: 10.10.10.1"
         log "    port: $EXPOSE_PORT"
         log "    udp: true"
+
+        # Start watchdog to monitor WAN changes
+        sh "$BASE/action/watchdog.sh" &
         exit 0
     fi
 done
 
 log "WARNING: Port $EXPOSE_PORT not detected after 15s"
 log "zivpn (PID $ZPID) may still be connecting..."
+
+# Start watchdog anyway
+sh "$BASE/action/watchdog.sh" &

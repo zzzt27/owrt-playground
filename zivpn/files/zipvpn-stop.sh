@@ -13,6 +13,13 @@ fi
 killall -q zivpn 2>/dev/null
 log "zivpn stopped"
 
+# Kill watchdog
+if [ -f "$RUN/watchdog.pid" ]; then
+    kill "$(cat "$RUN/watchdog.pid")" 2>/dev/null
+    rm -f "$RUN/watchdog.pid"
+    log "watchdog stopped"
+fi
+
 # Remove ip rule bypasses
 if [ -f "$RUN/bypass_ips" ]; then
     while read -r ip; do
