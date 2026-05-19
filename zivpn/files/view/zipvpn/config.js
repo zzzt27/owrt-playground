@@ -49,6 +49,7 @@ return view.extend({
         o.placeholder = DEFAULT_PORTS;
         o.default     = DEFAULT_PORTS;
         o.rmempty     = false;
+
         // ── WAN Interface ────────────────────────────────────────────────────
         s = m.section(form.NamedSection, 'main', 'global', 'WAN Interface');
         s.addremove = false;
@@ -73,22 +74,24 @@ return view.extend({
         o.default  = '';
         o.optional = true;
 
-
-        // ── SOCKS5 Listen ────────────────────────────────────────────────────
-        s = m.section(form.NamedSection, 'main', 'global', 'SOCKS5 Listen');
+        // ── DNS Resolver ─────────────────────────────────────────────────────
+        s = m.section(form.NamedSection, 'main', 'global', 'DNS Resolver');
         s.addremove = false;
-        s.description = 'The local SOCKS5 proxy that Mihomo / Clash connects to on this router.';
+        s.description = 'DNS server used by ZiVPN to resolve the server hostname. ' +
+            'Choose a preset or type a custom address.';
 
-        o = s.option(form.Value, 'expose_port', 'Listen Port',
-            'Default 7777. Change if this port is already in use.');
-        o.placeholder = '7777';
-        o.datatype    = 'port';
-        o.default     = '7777';
-
-        o = s.option(form.ListValue, 'expose_addr', 'Listen Address');
-        o.value('0.0.0.0',   '0.0.0.0  —  all interfaces (LAN + router itself)');
-        o.value('127.0.0.1', '127.0.0.1  —  loopback only (Mihomo on this router only)');
-        o.default = '0.0.0.0';
+        o = s.option(form.Value, 'resolver', 'DNS Server');
+        o.value('8.8.8.8:53',         'Google DNS (8.8.8.8)');
+        o.value('8.8.4.4:53',         'Google DNS 2 (8.8.4.4)');
+        o.value('1.1.1.1:53',         'Cloudflare (1.1.1.1)');
+        o.value('1.0.0.1:53',         'Cloudflare 2 (1.0.0.1)');
+        o.value('9.9.9.9:53',         'Quad9 (9.9.9.9)');
+        o.value('208.67.222.222:53',   'OpenDNS (208.67.222.222)');
+        o.value('119.29.29.29:53',     'DNSPod CN (119.29.29.29)');
+        o.value('223.5.5.5:53',        'AliDNS (223.5.5.5)');
+        o.placeholder = 'e.g. 8.8.8.8:53';
+        o.default     = '8.8.8.8:53';
+        o.rmempty     = false;
 
         // ── Options ──────────────────────────────────────────────────────────
         s = m.section(form.NamedSection, 'main', 'global', 'Options');
@@ -111,28 +114,36 @@ return view.extend({
         // ── Advanced Optimization (Hysteria) ─────────────────────────────────
         s = m.section(form.NamedSection, 'main', 'global', 'Advanced Optimization');
         s.addremove = false;
-        s.description = 'Tune these Hysteria parameters to optimize your internet speed and fix throttling.';
+        s.description = 'Tune these Hysteria parameters to optimize speed. ' +
+            'Set Download/Upload to ~1.5x your real ISP speed for best results.';
 
-        o = s.option(form.Value, 'down_mbps', 'Download Speed (Mbps)', 'Your expected max download speed in Megabits per second. (Default: 50)');
+        o = s.option(form.Value, 'down_mbps', 'Download Speed (Mbps)',
+            'Bandwidth hint for the server. Set to ~1.5x your ISP download speed.');
         o.datatype = 'uinteger';
         o.default  = '50';
 
-        o = s.option(form.Value, 'up_mbps', 'Upload Speed (Mbps)', 'Your expected max upload speed in Megabits per second. (Default: 10)');
+        o = s.option(form.Value, 'up_mbps', 'Upload Speed (Mbps)',
+            'Bandwidth hint for the server. Set to ~1.5x your ISP upload speed.');
         o.datatype = 'uinteger';
         o.default  = '10';
 
-        o = s.option(form.Flag, 'disable_mtu_discovery', 'Disable MTU Discovery', 'If true, disables Path MTU Discovery (helps on some networks).');
+        o = s.option(form.Flag, 'disable_mtu_discovery', 'Disable MTU Discovery',
+            'Disable Path MTU Discovery. Enable this on unstable or mobile connections.');
         o.enabled  = '1';
         o.disabled = '0';
         o.default  = o.enabled;
 
-        o = s.option(form.Value, 'recvwindowconn', 'Receive Window (Conn)', 'Default: 65536');
+        o = s.option(form.Value, 'recvwindowconn', 'Receive Window (Conn)',
+            'Per-connection receive buffer. Affects download speed only. ' +
+            'Recommended: 1048576 (1MB) for slow links, 4194304 (4MB) for 30+ Mbps.');
         o.datatype = 'uinteger';
-        o.default  = '65536';
+        o.default  = '1048576';
 
-        o = s.option(form.Value, 'recvwindow', 'Receive Window (Global)', 'Default: 262144');
+        o = s.option(form.Value, 'recvwindow', 'Receive Window (Stream)',
+            'Per-stream receive buffer. Affects download speed only. ' +
+            'Recommended: 4194304 (4MB) for slow links, 16777216 (16MB) for 30+ Mbps.');
         o.datatype = 'uinteger';
-        o.default  = '262144';
+        o.default  = '4194304';
 
         return m.render();
     }

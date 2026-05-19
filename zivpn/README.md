@@ -38,7 +38,7 @@ proxies:
   - name: "zivpn"
     type: socks5
     server: 10.10.10.1
-    port: 7777
+    port: 2080
     udp: true
 ```
 
@@ -77,12 +77,12 @@ All settings are stored in `/etc/config/zipvpn` and can be edited via LuCI or UC
 | `z_password` | — | Auth password |
 | `z_obfs` | `hu``hqb`c` | Obfuscation key |
 | `wan_iface` | (auto) | Force a specific WAN interface |
-| `expose_port` | `7777` | SOCKS5 listen port |
-| `expose_addr` | `0.0.0.0` | SOCKS5 listen address |
-| `down_mbps` | `100` | Downstream bandwidth hint (Mbps) |
-| `up_mbps` | `30` | Upstream bandwidth hint (Mbps) |
-| `recvwindowconn` | `4194304` | Per-connection receive window |
-| `recvwindow` | `16777216` | Global receive window |
+| `expose_port` | `2080` | SOCKS5 listen port |
+| `expose_addr` | `127.0.0.1` | SOCKS5 listen address (localhost only) |
+| `down_mbps` | `50` | Downstream bandwidth hint (Mbps) |
+| `up_mbps` | `10` | Upstream bandwidth hint (Mbps) |
+| `recvwindowconn` | `1048576` | Per-connection receive window |
+| `recvwindow` | `4194304` | Global receive window |
 | `disable_mtu_discovery` | `1` | Disable Path MTU Discovery |
 | `enabled` | `0` | Auto-start on boot |
 | `start_delay` | `0` | Delay (seconds) before starting on boot |

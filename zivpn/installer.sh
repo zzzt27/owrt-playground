@@ -59,13 +59,13 @@ if ! uci -q get zipvpn.main >/dev/null 2>&1; then
     uci batch <<-'UCI'
         set zipvpn.main='global'
         set zipvpn.main.enabled='0'
-        set zipvpn.main.expose_port='7777'
-        set zipvpn.main.expose_addr='0.0.0.0'
-        set zipvpn.main.down_mbps='100'
-        set zipvpn.main.up_mbps='30'
+        set zipvpn.main.expose_port='2080'
+        set zipvpn.main.resolver='8.8.8.8:53'
+        set zipvpn.main.down_mbps='50'
+        set zipvpn.main.up_mbps='10'
         set zipvpn.main.disable_mtu_discovery='1'
-        set zipvpn.main.recvwindowconn='4194304'
-        set zipvpn.main.recvwindow='16777216'
+        set zipvpn.main.recvwindowconn='1048576'
+        set zipvpn.main.recvwindow='4194304'
         commit zipvpn
 UCI
 fi
