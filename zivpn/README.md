@@ -19,7 +19,7 @@ SSH into your OpenWrt router and run:
 ```bash
 # Clone the repo
 cd /tmp
-wget https://github.com/YOUR_USERNAME/owrt-playground/archive/refs/heads/main.tar.gz -O owrt-playground.tar.gz
+wget https://github.com/zzzt27/owrt-playground/archive/refs/heads/main.tar.gz -O owrt-playground.tar.gz
 tar xzf owrt-playground.tar.gz
 cd owrt-playground-main/zivpn
 
@@ -31,7 +31,7 @@ Or if you have `git`:
 
 ```bash
 cd /tmp
-git clone https://github.com/YOUR_USERNAME/owrt-playground.git
+git clone https://github.com/zzzt27/owrt-playground.git
 cd owrt-playground/zivpn
 sh install.sh
 ```
