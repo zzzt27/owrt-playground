@@ -20,9 +20,7 @@ SSH into your OpenWrt router and run the commands below.
 ```bash
 # Download the repository source code
 cd /tmp
-wget https://github.com/zzzt27/owrt-playground/archive/refs/heads/master.tar.gz -O owrt-playground.tar.gz
-
-# Extract it
+wget https://github.com/zzzt27/owrt-playground/archive/refs/heads/main.tar.gz -O owrt-playground.tar.gz
 tar xzf owrt-playground.tar.gz
 cd owrt-playground-master/zivpn
 
