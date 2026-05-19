@@ -1,0 +1,36 @@
+{
+    "admin/services/zipvpn": {
+        "title": "ZiVPN",
+        "order": 80,
+        "action": {
+            "type": "firstchild"
+        },
+        "depends": {
+            "acl": [ "luci-app-zipvpn" ]
+        }
+    },
+    "admin/services/zipvpn/dashboard": {
+        "title": "Dashboard",
+        "order": 10,
+        "action": {
+            "type": "view",
+            "path": "zipvpn/dashboard"
+        }
+    },
+    "admin/services/zipvpn/config": {
+        "title": "Configuration",
+        "order": 20,
+        "action": {
+            "type": "view",
+            "path": "zipvpn/config"
+        }
+    },
+    "admin/services/zipvpn/log": {
+        "title": "Log",
+        "order": 30,
+        "action": {
+            "type": "view",
+            "path": "zipvpn/log"
+        }
+    }
+}

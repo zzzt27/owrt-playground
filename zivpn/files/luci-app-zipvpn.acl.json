@@ -1,0 +1,23 @@
+{
+    "luci-app-zipvpn": {
+        "description": "LuCI support for ZipVPN",
+        "read": {
+            "uci": [ "zipvpn" ],
+            "ubus": {
+                "zipvpn": [ "status", "log" ],
+                "file":   [ "read" ]
+            },
+            "file": {
+                "/etc/zipvpn/run/zivpn.log": [ "read" ],
+                "/tmp/zpvpn_dl_progress":    [ "read" ],
+                "/tmp/zpvpn_dl_log.txt":     [ "read" ]
+            }
+        },
+        "write": {
+            "uci": [ "zipvpn" ],
+            "ubus": {
+                "zipvpn": [ "status", "start", "stop", "restart", "download", "log", "clearlog" ]
+            }
+        }
+    }
+}
