@@ -36,7 +36,6 @@ _dl() {
 _dl "zipvpn-start.sh"                    /etc/zipvpn/action/zipvpn-start.sh
 _dl "zipvpn-stop.sh"                     /etc/zipvpn/action/zipvpn-stop.sh
 _dl "download_bins.sh"                   /etc/zipvpn/action/download_bins.sh
-_dl "watchdog.sh"                        /etc/zipvpn/action/watchdog.sh
 _dl "zipvpn-rpc.sh"                      /usr/libexec/rpcd/zipvpn
 _dl "luci-app-zipvpn.menu.json"          /usr/share/luci/menu.d/luci-app-zipvpn.menu.json
 _dl "luci-app-zipvpn.acl.json"           /usr/share/rpcd/acl.d/luci-app-zipvpn.acl.json
