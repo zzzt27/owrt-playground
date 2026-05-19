@@ -60,6 +60,14 @@ log "DNS         : $RESOLVER"
 # ── Stop existing instances ────────────────────────────────────────────────────
 sh "$BASE/action/zipvpn-stop.sh" 2>/dev/null
 
+# ── Check port conflict ───────────────────────────────────────────────────────
+PORT_USER="$(netstat -tunlp 2>/dev/null | grep ":$EXPOSE_PORT " | awk '{print $NF}' | head -1)"
+if [ -n "$PORT_USER" ]; then
+    log "ERROR: Port $EXPOSE_PORT is already in use by: $PORT_USER"
+    log "       Go to Configuration > Options > SOCKS5 Port and change it."
+    exit 1
+fi
+
 # ── Resolve server IP ──────────────────────────────────────────────────────────
 resolve_ip() {
     local host="$1"
