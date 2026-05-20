@@ -104,20 +104,24 @@ return view.extend({
         o.placeholder = '2080';
         o.default     = '2080';
 
-
         o = s.option(form.Flag, 'enabled', 'Start on boot',
             'Automatically start ZiVPN when the router boots');
         o.enabled  = '1';
         o.disabled = '0';
         o.default  = o.disabled;
 
+        o = s.option(form.ListValue, 'boot_mode', 'Boot Trigger');
+        o.value('delay',    'After delay (seconds)');
+        o.value('iface_up', 'When WAN interface comes up');
+        o.default = 'delay';
+        o.depends('enabled', '1');
+
         o = s.option(form.Value, 'start_delay', 'Start Delay (seconds)',
-            'Wait this many seconds after boot before starting ZiVPN. ' +
-            'Useful to let WAN interfaces come up first. (Default: 0 = no delay)');
+            'Wait this many seconds after boot before starting ZiVPN.');
         o.datatype    = 'uinteger';
         o.placeholder = '0';
         o.default     = '0';
-        o.depends('enabled', '1');
+        o.depends('boot_mode', 'delay');
 
         // ── Advanced Optimization (Hysteria) ─────────────────────────────────
         s = m.section(form.NamedSection, 'main', 'global', 'Advanced Optimization');
@@ -141,27 +145,27 @@ return view.extend({
         o.disabled = '0';
         o.default  = o.enabled;
 
-        o = s.option(form.Value, 'recvwindowconn', 'Receive Window (Conn)',
-            'Per-connection receive buffer (bytes). Affects download throughput. ' +
-            'Keep Conn:Stream ratio close to 2:5. Select a preset or type a custom value.');
-        o.value('65536',    'Default (64 KB)');
-        o.value('1048576',  'Light (1 MB)');
-        o.value('4194304',  'Medium (4 MB)');
-        o.value('8388608',  'Heavy (8 MB)');
-        o.value('20971520', 'Max (20 MB)');
-        o.default  = '65536';
-        o.rmempty  = false;
+        o = s.option(form.ListValue, 'recv_preset', 'Receive Window',
+            'QUIC flow control buffer. Affects download speed. ' +
+            'Values shown as Conn / Stream (ratio 2:5).');
+        o.value('65536|262144',       'Default — 64 KB / 256 KB');
+        o.value('1048576|2621440',    'Light — 1 MB / 2.5 MB');
+        o.value('4194304|10485760',   'Medium — 4 MB / 10 MB');
+        o.value('8388608|20971520',   'Heavy — 8 MB / 20 MB');
+        o.value('custom',             'Custom...');
+        o.default = '65536|262144';
 
-        o = s.option(form.Value, 'recvwindow', 'Receive Window (Stream)',
-            'Per-stream receive buffer (bytes). Affects single-stream download speed. ' +
-            'Keep Conn:Stream ratio close to 2:5. Select a preset or type a custom value.');
-        o.value('262144',    'Default (256 KB)');
-        o.value('524288',    'Light (512 KB)');
-        o.value('2097152',   'Medium (2 MB)');
-        o.value('4194304',   'Heavy (4 MB)');
-        o.value('8388608',   'Max (8 MB)');
-        o.default  = '262144';
-        o.rmempty  = false;
+        o = s.option(form.Value, 'recvwindowconn', 'Custom Recv Window (Conn)',
+            'Per-connection receive buffer in bytes.');
+        o.datatype = 'uinteger';
+        o.placeholder = '65536';
+        o.depends('recv_preset', 'custom');
+
+        o = s.option(form.Value, 'recvwindow', 'Custom Recv Window (Stream)',
+            'Per-stream receive buffer in bytes. Keep Conn:Stream ratio close to 2:5.');
+        o.datatype = 'uinteger';
+        o.placeholder = '262144';
+        o.depends('recv_preset', 'custom');
 
         o = s.option(form.Value, 'hop_interval', 'Port Hop Interval',
             'How often to switch to a different port from your port range. ' +

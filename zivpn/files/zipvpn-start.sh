@@ -32,9 +32,15 @@ UP_MBPS="$(uci -q get zipvpn.main.up_mbps 2>/dev/null)"; UP_MBPS="${UP_MBPS:-10}
 DISABLE_MTU="$(uci -q get zipvpn.main.disable_mtu_discovery 2>/dev/null)"; [ "$DISABLE_MTU" != "0" ] && DISABLE_MTU="true" || DISABLE_MTU="false"
 RECV_CONN="$(uci -q get zipvpn.main.recvwindowconn 2>/dev/null)"; RECV_CONN="${RECV_CONN:-65536}"
 RECV_WIN="$(uci -q get zipvpn.main.recvwindow 2>/dev/null)"; RECV_WIN="${RECV_WIN:-262144}"
+RECV_PRESET="$(uci -q get zipvpn.main.recv_preset 2>/dev/null)"
+if [ -n "$RECV_PRESET" ] && [ "$RECV_PRESET" != "custom" ]; then
+    RECV_CONN="$(echo "$RECV_PRESET" | cut -d'|' -f1)"
+    RECV_WIN="$(echo "$RECV_PRESET" | cut -d'|' -f2)"
+fi
 HOP_INTERVAL="$(uci -q get zipvpn.main.hop_interval 2>/dev/null)"
 FAST_OPEN="$(uci -q get zipvpn.main.fast_open 2>/dev/null)"
 LAZY_MODE="$(uci -q get zipvpn.main.lazy_mode 2>/dev/null)"
+BOOT_MODE="$(uci -q get zipvpn.main.boot_mode 2>/dev/null)"; BOOT_MODE="${BOOT_MODE:-delay}"
 
 
 # ── Validate ───────────────────────────────────────────────────────────────────

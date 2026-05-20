@@ -1,17 +1,14 @@
 #!/bin/sh
 # /etc/hotplug.d/iface/99-zipvpn
-# Auto re-apply ZiVPN server route when the selected WAN interface:
-#   - comes up (ifup)        → modem restart, cable reconnect
-#   - changes IP (ifupdate)  → DHCP renew, ISP IP rotation (e.g. XL every 2h)
+# Two functions:
+#   1. Auto-start ZiVPN when WAN comes up (boot_mode=iface_up)
+#   2. Re-apply routes when WAN IP changes (ifup/ifupdate)
 
 # Only act on ifup or ifupdate
 case "$ACTION" in
     ifup|ifupdate) ;;
     *) exit 0 ;;
 esac
-
-# Only act if ZiVPN is running
-pgrep -f '/etc/zipvpn/core/zivpn' >/dev/null 2>&1 || exit 0
 
 RUN="/etc/zipvpn/run"
 
@@ -22,6 +19,19 @@ WAN_IFACE="$(uci -q get zipvpn.main.wan_iface)"
 # Only act on the interface we care about
 [ "$INTERFACE" = "$WAN_IFACE" ] || exit 0
 
+# ── Auto-start on interface up ────────────────────────────────────────────────
+# If ZiVPN is NOT running but boot_mode=iface_up and enabled=1, start it now.
+if ! pgrep -f '/etc/zipvpn/core/zivpn' >/dev/null 2>&1; then
+    ENABLED="$(uci -q get zipvpn.main.enabled)"
+    BOOT_MODE="$(uci -q get zipvpn.main.boot_mode)"
+    if [ "$ENABLED" = "1" ] && [ "$BOOT_MODE" = "iface_up" ] && [ "$ACTION" = "ifup" ]; then
+        logger -t ZIPVPN "Hotplug: WAN $INTERFACE is up — auto-starting ZiVPN"
+        sh /etc/zipvpn/action/zipvpn-start.sh &
+    fi
+    exit 0
+fi
+
+# ── Re-apply routes (ZiVPN is running) ────────────────────────────────────────
 # Read the REAL server IP that was resolved at start time (before Mihomo hijacks DNS).
 # DO NOT resolve the hostname again here — Mihomo fake-ip will return 198.18.x.x!
 [ -f "$RUN/bypass_ips" ] || exit 0
