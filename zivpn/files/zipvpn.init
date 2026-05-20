@@ -19,8 +19,14 @@ start_service() {
     boot_mode="${boot_mode:-delay}"
 
     if [ "$boot_mode" = "iface_up" ]; then
-        logger -t ZIPVPN "Boot mode: iface_up — waiting for WAN interface hotplug to start."
-        return 0
+        local wan_iface
+        wan_iface="$(uci -q get zipvpn.main.wan_iface)"
+        if [ -z "$wan_iface" ]; then
+            logger -t ZIPVPN "Boot mode iface_up but no WAN interface selected — falling back to delay mode."
+        else
+            logger -t ZIPVPN "Boot mode: iface_up — waiting for $wan_iface to come up via hotplug."
+            return 0
+        fi
     fi
 
     local delay

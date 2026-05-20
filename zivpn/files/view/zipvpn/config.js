@@ -28,8 +28,9 @@ return view.extend({
         s.addremove = false;
 
         o = s.option(form.Value, 'z_server', 'Server Host',
-            'Hostname or IP of your ZiVPN server (no port — port is handled by Port Ranges below)');
-        o.placeholder = 'e.g.  server.zivpn.net';
+            'IP address is recommended to avoid DNS issues with Mihomo/Clash fake-ip. ' +
+            'Hostname works but may cause routing errors on WAN reconnect.');
+        o.placeholder = 'e.g.  64.120.95.223';
         o.rmempty = false;
 
         o = s.option(form.Value, 'z_password', 'Server Password',
@@ -110,7 +111,9 @@ return view.extend({
         o.disabled = '0';
         o.default  = o.disabled;
 
-        o = s.option(form.ListValue, 'boot_mode', 'Boot Trigger');
+        o = s.option(form.ListValue, 'boot_mode', 'Boot Trigger',
+            'Delay: start after fixed seconds. Interface up: start when your selected WAN comes up. ' +
+            'Requires a WAN interface to be selected above.');
         o.value('delay',    'After delay (seconds)');
         o.value('iface_up', 'When WAN interface comes up');
         o.default = 'delay';
