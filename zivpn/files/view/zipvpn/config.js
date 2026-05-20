@@ -83,9 +83,7 @@ return view.extend({
 
         o = s.option(form.Value, 'resolver', 'DNS Server');
         o.value('8.8.8.8:53',         'Google DNS (8.8.8.8)');
-        o.value('8.8.4.4:53',         'Google DNS 2 (8.8.4.4)');
         o.value('1.1.1.1:53',         'Cloudflare (1.1.1.1)');
-        o.value('1.0.0.1:53',         'Cloudflare 2 (1.0.0.1)');
         o.value('9.9.9.9:53',         'Quad9 (9.9.9.9)');
         o.value('208.67.222.222:53',   'OpenDNS (208.67.222.222)');
         o.value('119.29.29.29:53',     'DNSPod CN (119.29.29.29)');
@@ -129,16 +127,15 @@ return view.extend({
         // ── Advanced Optimization (Hysteria) ─────────────────────────────────
         s = m.section(form.NamedSection, 'main', 'global', 'Advanced Optimization');
         s.addremove = false;
-        s.description = 'Tune these Hysteria parameters to optimize speed. ' +
-            'Set Download/Upload to ~1.5x your real ISP speed for best results.';
+        s.description = 'Advanced performance tuning parameters for ZiVPN. Only modify if you understand the underlying protocol requirements.';
 
         o = s.option(form.Value, 'down_mbps', 'Download Speed (Mbps)',
-            'Bandwidth hint for the server. Set to ~1.5x your ISP download speed.');
+            'Maximum download bandwidth limit for this client.');
         o.datatype = 'uinteger';
         o.default  = '50';
 
         o = s.option(form.Value, 'up_mbps', 'Upload Speed (Mbps)',
-            'Bandwidth hint for the server. Set to ~1.5x your ISP upload speed.');
+            'Maximum upload bandwidth limit for this client.');
         o.datatype = 'uinteger';
         o.default  = '10';
 
@@ -149,8 +146,7 @@ return view.extend({
         o.default  = o.enabled;
 
         o = s.option(form.ListValue, 'recv_preset', 'Receive Window',
-            'QUIC flow control buffer. Affects download speed. ' +
-            'Values shown as Conn / Stream (ratio 2:5).');
+            'QUIC flow control buffer values shown as Conn / Stream (ratio 2:5).');
         o.value('65536|262144',       'Default — 64 KB / 256 KB');
         o.value('1048576|2621440',    'Light — 1 MB / 2.5 MB');
         o.value('4194304|10485760',   'Medium — 4 MB / 10 MB');
