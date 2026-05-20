@@ -64,8 +64,8 @@ if ! uci -q get zipvpn.main >/dev/null 2>&1; then
         set zipvpn.main.down_mbps='50'
         set zipvpn.main.up_mbps='10'
         set zipvpn.main.disable_mtu_discovery='1'
-        set zipvpn.main.recvwindowconn='1048576'
-        set zipvpn.main.recvwindow='4194304'
+        set zipvpn.main.recvwindowconn='65536'
+        set zipvpn.main.recvwindow='262144'
         commit zipvpn
 UCI
 fi

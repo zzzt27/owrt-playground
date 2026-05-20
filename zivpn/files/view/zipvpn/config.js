@@ -6,7 +6,7 @@
 'require network';
 
 var DEFAULT_OBFS  = 'hu``hqb`c';
-var DEFAULT_PORTS = '6000-7750,7751-9500,9501-11250,11251-13000,13001-14750,14751-16500,16501-18250,18251-19999';
+var DEFAULT_PORTS = '6000-19999';
 
 return view.extend({
     load: function() {
@@ -142,16 +142,26 @@ return view.extend({
         o.default  = o.enabled;
 
         o = s.option(form.Value, 'recvwindowconn', 'Receive Window (Conn)',
-            'Per-connection receive buffer. Affects download speed only. ' +
-            'Recommended: 1048576 (1MB) for slow links, 4194304 (4MB) for 30+ Mbps.');
-        o.datatype = 'uinteger';
-        o.default  = '1048576';
+            'Per-connection receive buffer (bytes). Affects download throughput. ' +
+            'Keep Conn:Stream ratio close to 2:5. Select a preset or type a custom value.');
+        o.value('65536',    'Default (64 KB)');
+        o.value('1048576',  'Light (1 MB)');
+        o.value('4194304',  'Medium (4 MB)');
+        o.value('8388608',  'Heavy (8 MB)');
+        o.value('20971520', 'Max (20 MB)');
+        o.default  = '65536';
+        o.rmempty  = false;
 
         o = s.option(form.Value, 'recvwindow', 'Receive Window (Stream)',
-            'Per-stream receive buffer. Affects download speed only. ' +
-            'Recommended: 4194304 (4MB) for slow links, 16777216 (16MB) for 30+ Mbps.');
-        o.datatype = 'uinteger';
-        o.default  = '4194304';
+            'Per-stream receive buffer (bytes). Affects single-stream download speed. ' +
+            'Keep Conn:Stream ratio close to 2:5. Select a preset or type a custom value.');
+        o.value('262144',    'Default (256 KB)');
+        o.value('524288',    'Light (512 KB)');
+        o.value('2097152',   'Medium (2 MB)');
+        o.value('4194304',   'Heavy (4 MB)');
+        o.value('8388608',   'Max (8 MB)');
+        o.default  = '262144';
+        o.rmempty  = false;
 
         o = s.option(form.Value, 'hop_interval', 'Port Hop Interval',
             'How often to switch to a different port from your port range. ' +
