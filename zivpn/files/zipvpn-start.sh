@@ -49,6 +49,16 @@ if [ ! -x "$ZIVPN_BIN" ]; then
     exit 1
 fi
 
+# ── Tune system UDP buffers (critical for QUIC performance) ────────────────────
+# Default OpenWrt rmem_max=208KB caps QUIC speed at ~3Mbps regardless of recvwindow.
+# Hysteria docs recommend 16MB for both read and write buffers.
+CURRENT_RMEM="$(sysctl -n net.core.rmem_max 2>/dev/null)"
+if [ -n "$CURRENT_RMEM" ] && [ "$CURRENT_RMEM" -lt 16777216 ] 2>/dev/null; then
+    sysctl -w net.core.rmem_max=16777216 >/dev/null 2>&1
+    sysctl -w net.core.wmem_max=16777216 >/dev/null 2>&1
+    log "System UDP buffer tuned: rmem/wmem_max → 16MB (was ${CURRENT_RMEM})"
+fi
+
 log "=== ZipVPN Starting ==="
 log "Server      : $Z_SERVER"
 log "Port Ranges : $Z_PORTS"
