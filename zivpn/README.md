@@ -1,4 +1,4 @@
-# ZiVPN — Hysteria V1 Client for OpenWrt (LuCI Dashboard)
+# Test ZiVPN Client for OpenWrt (LuCI Dashboard)
 
 A lightweight LuCI web interface to manage a **Hysteria V1** (QUIC/UDP) tunnel on OpenWrt.
 Provides a SOCKS5 proxy that can be used as an upstream for **Mihomo / Clash**.
@@ -37,7 +37,7 @@ Once running, add this to your Mihomo config:
 proxies:
   - name: "zivpn"
     type: socks5
-    server: 10.10.10.1
+    server: 127.0.0.1
     port: 2080
     udp: true
 ```
