@@ -1,0 +1,95 @@
+#!/bin/sh /etc/rc.common
+# /etc/init.d/modem-atreset
+# Fixes Dell DW5821e modem detection at boot:
+# 1. Sends AT^RESET so the MBIM port (cdc-wdm0) becomes responsive
+# 2. Restarts ModemManager for clean detection (avoids Dell plugin race condition)
+
+START=99
+STOP=10
+
+MODEM_VID="413c"
+MODEM_PID="81d7"
+
+# AT port for DW5821e (option driver, interface 2 = ttyUSB0)
+AT_PORT="/dev/ttyUSB0"
+
+log() {
+    logger -t modem-atreset "$@"
+}
+
+# Wait for modem USB device + AT port to appear
+wait_for_modem() {
+    local max_wait=30
+    local waited=0
+    while [ "$waited" -lt "$max_wait" ]; do
+        if lsusb 2>/dev/null | grep -qi "${MODEM_VID}:${MODEM_PID}"; then
+            if [ -c "$AT_PORT" ]; then
+                log "Modem and AT port ready after ${waited}s"
+                return 0
+            fi
+        fi
+        sleep 1
+        waited=$((waited + 1))
+    done
+    return 1
+}
+
+# Wait for AT port to reappear after reset
+wait_for_port_back() {
+    local max_wait="$1"
+    local waited=0
+    while [ "$waited" -lt "$max_wait" ]; do
+        if [ -c "$AT_PORT" ] && lsusb 2>/dev/null | grep -qi "${MODEM_VID}:${MODEM_PID}"; then
+            log "Modem back on USB with AT port after ${waited}s"
+            return 0
+        fi
+        sleep 1
+        waited=$((waited + 1))
+    done
+    return 1
+}
+
+start() {
+    log "=== Boot modem fix starting ==="
+
+    # Wait for DW5821e modem and AT port
+    log "Waiting for DW5821e modem (${MODEM_VID}:${MODEM_PID}) and $AT_PORT ..."
+    if ! wait_for_modem; then
+        log "Modem or AT port not found after timeout, skipping"
+        return 1
+    fi
+
+    # Small delay for port stabilization after USB enumeration
+    sleep 2
+
+    if [ ! -c "$AT_PORT" ]; then
+        log "ERROR: $AT_PORT disappeared"
+        return 1
+    fi
+
+    # Step 1: Send AT^RESET to make MBIM port (cdc-wdm0) responsive
+    log "Sending AT^RESET to $AT_PORT ..."
+    echo -e "AT^RESET\r" > "$AT_PORT" 2>/dev/null
+    log "AT^RESET sent, waiting for modem to re-enumerate ..."
+
+    # Wait for modem to disconnect and come back
+    sleep 5
+    if ! wait_for_port_back 30; then
+        log "WARNING: Modem did not come back after 35s"
+        return 1
+    fi
+
+    # Let kernel finish driver binding
+    log "Modem re-enumerated, waiting 5s for driver stabilization ..."
+    sleep 5
+
+    # Step 2: Restart ModemManager for clean detection
+    log "Restarting ModemManager for clean modem detection ..."
+    /etc/init.d/modemmanager restart
+
+    log "=== Boot modem fix complete ==="
+}
+
+stop() {
+    return 0
+}

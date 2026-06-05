@@ -1,0 +1,48 @@
+{
+  "luci-app-dwtool": {
+    "description": "Grant access to Dell DW5821e Toolkits",
+    "read": {
+      "cgi-io": [ "exec" ],
+      "file": {
+        "/usr/bin/sms_tool": [ "exec" ],
+        "/usr/share/dwtool/modem_status.sh": [ "exec" ],
+        "/usr/share/dwtool/sms_manager.sh": [ "exec" ],
+        "/usr/share/dwtool/switch_qmi.sh": [ "exec" ],
+        "/usr/share/dwtool/imei_manager.sh": [ "exec" ],
+        "/usr/share/dwtool/modem_control.sh": [ "exec" ],
+        "/usr/share/dwtool/watchdog.sh": [ "exec" ],
+        "/sbin/logread": [ "exec" ],
+        "/usr/sbin/logread": [ "exec" ],
+        "/etc/init.d/modem-atreset": [ "exec" ],
+        "/etc/init.d/dwtool-forwarder": [ "exec" ],
+        "/etc/init.d/dwtool-watchdog": [ "exec" ],
+        "/dev/ttyUSB*": [ "read" ],
+        "/dev/ttyACM*": [ "read" ],
+        "/dev/cdc-wdm*": [ "read" ],
+        "/etc/dwtool_imei_profiles.json": [ "read" ],
+        "/etc/dwtool_sms_history.json": [ "read" ],
+        "/etc/dwtool_traffic.json": [ "read" ],
+        "/tmp/dwtool-watchdog.log": [ "read" ]
+      },
+      "ubus": {
+        "file": [ "list", "read", "exec" ]
+      },
+      "uci": [ "dwtool" ]
+    },
+    "write": {
+      "file": {
+        "/usr/share/dwtool/sms_manager.sh": [ "exec" ],
+        "/usr/share/dwtool/imei_manager.sh": [ "exec" ],
+        "/usr/share/dwtool/modem_control.sh": [ "exec" ],
+        "/usr/share/dwtool/watchdog.sh": [ "exec" ],
+        "/etc/init.d/modem-atreset": [ "exec" ],
+        "/etc/init.d/dwtool-forwarder": [ "exec" ],
+        "/etc/init.d/dwtool-watchdog": [ "exec" ],
+        "/etc/dwtool_imei_profiles.json": [ "write" ],
+        "/etc/dwtool_sms_history.json": [ "write" ]
+      },
+      "uci": [ "dwtool" ]
+    }
+  }
+}
+

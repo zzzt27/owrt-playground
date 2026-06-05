@@ -1,0 +1,79 @@
+{
+    "admin/modem/dwtool": {
+        "title": "Dell DW5821e",
+        "order": 80,
+        "action": {
+            "type": "alias",
+            "path": "admin/modem/dwtool/status"
+        },
+        "depends": {
+            "acl": [ "luci-app-dwtool" ],
+            "uci": { "dwtool": true }
+        }
+    },
+    "admin/modem/dwtool/status": {
+        "title": "Status",
+        "order": 10,
+        "action": {
+            "type": "view",
+            "path": "dwtool/status"
+        }
+    },
+    "admin/modem/dwtool/bandlock": {
+        "title": "Band Lock",
+        "order": 20,
+        "action": {
+            "type": "view",
+            "path": "dwtool/bandlock"
+        }
+    },
+    "admin/modem/dwtool/sms": {
+        "title": "SMS",
+        "order": 30,
+        "action": {
+            "type": "view",
+            "path": "dwtool/sms"
+        }
+    },
+    "admin/modem/dwtool/terminal": {
+        "title": "AT Terminal",
+        "order": 40,
+        "action": {
+            "type": "view",
+            "path": "dwtool/terminal"
+        }
+    },
+    "admin/modem/dwtool/imei": {
+        "title": "IMEI Changer",
+        "order": 45,
+        "action": {
+            "type": "view",
+            "path": "dwtool/imei"
+        }
+    },
+    "admin/modem/dwtool/settings": {
+        "title": "Settings",
+        "order": 55,
+        "action": {
+            "type": "view",
+            "path": "dwtool/settings"
+        }
+    },
+    "admin/modem/dwtool/watchdog": {
+        "title": "Watchdog",
+        "order": 50,
+        "action": {
+            "type": "view",
+            "path": "dwtool/watchdog"
+        }
+    },
+    "admin/modem/dwtool/log": {
+        "title": "Logs",
+        "order": 60,
+        "action": {
+            "type": "view",
+            "path": "dwtool/log"
+        }
+    }
+}
+

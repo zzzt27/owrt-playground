@@ -1,0 +1,6 @@
+Signal Quality/Strength;AT+CSQ
+Carrier Aggregation Info;AT^CA_INFO?
+Check Band Lock;AT^SLBAND?
+Neighbor Cells RSRP;AT+VZWRSRP?
+Modem Temperature;AT+TEMP?
+Modem Voltage;AT+VOLT?

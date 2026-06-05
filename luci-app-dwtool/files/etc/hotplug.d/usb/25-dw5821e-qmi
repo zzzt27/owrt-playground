@@ -1,0 +1,100 @@
+#!/bin/sh
+# /etc/hotplug.d/usb/25-dw5821e-qmi
+# Automatically switch Dell DW5821e to QMI mode (cfg=1)
+
+[ "$ACTION" = "add" ] || exit 0
+
+case "$PRODUCT" in
+  413c/81d7*) ;;
+  *) exit 0 ;;
+esac
+
+# Check if Auto QMI configuration is enabled in dwtool UCI
+AUTO_QMI=$(uci -q get dwtool.global.auto_qmi || echo "1")
+if [ "$AUTO_QMI" != "1" ]; then
+  logger -t dw5821e-qmi "Auto QMI mode is disabled in dwtool config, skipping hotplug switch"
+  exit 0
+fi
+
+SYSFS_PATH="/sys$DEVPATH"
+
+# Wait for kernel to finish setting up sysfs
+sleep 2
+
+# Only proceed if bConfigurationValue exists (= device level, not interface)
+[ -f "$SYSFS_PATH/bConfigurationValue" ] || exit 0
+
+CFG=$(cat "$SYSFS_PATH/bConfigurationValue")
+logger -t dw5821e-qmi "=== hotplug start === DEVPATH=$DEVPATH cfg=$CFG"
+
+# Already in QMI mode
+if [ "$CFG" = "1" ]; then
+  logger -t dw5821e-qmi "cfg=1 OK"
+  logger -t dw5821e-qmi "=== hotplug done ==="
+  exit 0
+fi
+
+# ---- Attempt to switch to cfg=1 with retry ----
+MAX_RETRY=3
+ATTEMPT=0
+
+while [ "$ATTEMPT" -lt "$MAX_RETRY" ]; do
+  ATTEMPT=$((ATTEMPT + 1))
+  logger -t dw5821e-qmi "attempt $ATTEMPT/$MAX_RETRY: switching cfg=$CFG to 1"
+
+  # Unbind all interface drivers first
+  # Kernel rejects bConfigurationValue write if any driver claims an interface
+  for intf_dir in "$SYSFS_PATH"/*:*; do
+    [ -d "$intf_dir" ] || continue
+    [ -L "$intf_dir/driver" ] || continue
+    intf_name=$(basename "$intf_dir")
+    driver_path=$(readlink -f "$intf_dir/driver")
+    logger -t dw5821e-qmi "  unbind $intf_name"
+    echo "$intf_name" > "$driver_path/unbind" 2>/dev/null
+  done
+
+  sleep 1
+
+  # Write config
+  echo 1 > "$SYSFS_PATH/bConfigurationValue" 2>/dev/null
+  sleep 3
+
+  # Device may have re-enumerated (sysfs path gone) — next hotplug will see cfg=1
+  if [ ! -f "$SYSFS_PATH/bConfigurationValue" ]; then
+    logger -t dw5821e-qmi "  device re-enumerated, next hotplug will verify"
+    exit 0
+  fi
+
+  CFG=$(cat "$SYSFS_PATH/bConfigurationValue" 2>/dev/null)
+  if [ "$CFG" = "1" ]; then
+    logger -t dw5821e-qmi "cfg=1 OK"
+    break
+  fi
+
+  logger -t dw5821e-qmi "  cfg still '$CFG' after write"
+
+  # Fallback: send AT+CFUN=1,1 to reset modem, then retry
+  if [ "$ATTEMPT" -lt "$MAX_RETRY" ]; do
+    AT_PORT=""
+    for p in /dev/ttyUSB1 /dev/ttyUSB0 /dev/ttyUSB2; do
+      [ -c "$p" ] && AT_PORT="$p" && break
+    done
+    if [ -n "$AT_PORT" ]; then
+      logger -t dw5821e-qmi "  sending AT+CFUN=1,1 via $AT_PORT to reset modem"
+      echo -e "AT+CFUN=1,1\r" > "$AT_PORT" 2>/dev/null
+      sleep 8
+      # Re-read cfg after modem reset
+      [ -f "$SYSFS_PATH/bConfigurationValue" ] && CFG=$(cat "$SYSFS_PATH/bConfigurationValue" 2>/dev/null)
+    else
+      logger -t dw5821e-qmi "  no AT port found, waiting before retry"
+      sleep 3
+    fi
+  fi
+done
+
+if [ "$CFG" != "1" ]; then
+  logger -t dw5821e-qmi "FAIL: cfg='$CFG' after $MAX_RETRY attempts, giving up"
+  exit 1
+fi
+
+logger -t dw5821e-qmi "=== hotplug done ==="
